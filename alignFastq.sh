@@ -1,28 +1,27 @@
 #! /bin/bash
-## script to arrange all fastq files into batches for analysis. Folders will be created for
+## script to arrange all fastq files into batches for analysis. Combined files will be created for
 ## each barcode of interest for both passed and failed reads (e.g. pass_barcode01 or fail_barcode01).  
-## Folders will also be created for all misclassified (barcode not in barcodesOfInterest) and 
-## unclassified reads split between pass_unclass and fail_unclass. 
 
 # Get variables from command line
-expName=$1
-bcOfInterest=$2
-genomeFile=$3
+expName=$1 	# experiment name (date of exp usually)
+bc=$2 		# barcode
+genomeFile=$3 	# full path to reference genome
 
-#expName="20171027"
-#barcodesOfInterest=( barcode05 barcode06 barcode07 barcode08 )
-#bcOfInterest=${barcodesOfInterest[0]}
+# need absolute paths for nanopolish index. get it from the summary file.
+summaryFile=`readlink -f ../sequencing_summary.txt`
+expPath=`dirname $summaryFile`
+
 
 ####### modules to load ##########
 module load vital-it
-module load R/3.5.1
+#module load R/3.5.1
 module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
 module add UHTS/Nanopore/nanopolish/0.10.2;
 ############################################
 
 ###################
-## run MinIONQC
+## run MinIONQC ---> moved to basecalling script
 ##################
 #
 ## create qc output directory
@@ -81,27 +80,32 @@ echo "collecting reads from folder of barcodes that were used..."
 # scroll through all barcodes you have used and take properly classified reads and move them
 # to new folders
 mkdir -p ../fastqFiles
-for b in ${barcodesOfInterest[@]};
-do
-    echo $b
-    if [ -d ../workspace/pass/${b} ];
-    then
-    	echo "passed reads..."
-        cat ../workspace/pass/${b}/*.fastq > ../fastqFiles/${expName}_pass_${b}.fastq
-	nanopolish index -s ../sequencing_summary.txt -d ../fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
-        gzip ../fastqFiles/${expName}_pass_${b}.fastq
-        do_pauvre_nanoQC $b pass $expName $qcDir 
-    fi
 
-        if [ -d ../workspace/fail/${b} ];
-    then
-    	echo "failed reads ..."
-        cat ../workspace/fail/${b}/*.fastq > ../fastqFiles/${expName}_fail_${b}.fastq
-	nanopolish index -s ../sequencing_summary.txt -d ../fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
-        gzip ../fastqFiles/${expName}_fail_${b}.fastq
-        do_pauvre_nanoQC $b fail $expName $qcDir
-    fi
-done
+# need absolut paths for nanopolish index. get it from the summary file.
+summaryFile=`readlink -f ../sequencing_summary.txt`
+expPath=`dirname $summaryFile`
+#expPath=/data/projects/p025/Jenny/20171027_Minion_TMP_Meth
+echo $expPath
+
+if [ -d ../workspace/pass/${bc} ];
+then
+    echo "passed reads..."
+    cat ../workspace/pass/${bc}/*.fastq > ../fastqFiles/${expName}_pass_${bc}.fastq
+    #nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_pass_${bc}.fastq
+    gzip ../fastqFiles/${expName}_pass_${bc}.fastq
+    nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_pass_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc pass $expName ../fastqQC 
+fi
+
+    if [ -d ../workspace/fail/${bc} ];
+then
+	echo "failed reads ..."
+    cat ../workspace/fail/${bc}/*.fastq > ../fastqFiles/${expName}_fail_${bc}.fastq
+    #nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_fail_${bc}.fastq
+    gzip ../fastqFiles/${expName}_fail_${bc}.fastq
+    nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_fail_${bc}.fastq.gz
+    do_pauvre_nanoQC $b fail $expName ../fastqQC
+fi
 
 
 ################################################
@@ -110,17 +114,21 @@ done
 echo "aligning to genome..."
 
 mkdir -p ../bamFiles
-echo $bcOfInterest
-echo $genomeFile
 
 # map reads to genome with minimap2
-minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bcOfInterest}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bc}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_fail_${bc}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_fail_${bc}.sorted.bam
 
 echo "index bam file ..."
-#samtools index ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam
-
+samtools index ../bamFiles/${expName}_pass_${bc}.sorted.bam
+samtools index ../bamFiles/${expName}_fail_${bc}.sorted.bam
 
 ################################################
 # identifying CmG and GCm
 ################################################
 echo "identify GCm and CmG ..."
+
+mkdir -p ../methylation_calls
+nanopolish call-methylation -t 4 -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/${expName}_pass_${bc}.tsv
+
+nanopolish call-methylation -t 4 -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/${expName}_fail_${bc}.tsv
