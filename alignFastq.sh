@@ -7,6 +7,7 @@
 # Get variables from command line
 expName=$1
 bcOfInterest=$2
+genomeFile=$3
 
 #expName="20171027"
 #barcodesOfInterest=( barcode05 barcode06 barcode07 barcode08 )
@@ -20,25 +21,25 @@ module add UHTS/Analysis/samtools/1.8;
 module add UHTS/Nanopore/nanopolish/0.10.2;
 ############################################
 
+###################
+## run MinIONQC
 ##################
-# run MinIONQC
-#################
-
-# create qc output directory
-qcDir=../fastqQC
-mkdir -p $qcDir
-
-echo "doing MinIONQC..."
-# run Minion_qc
-# source: https://github.com/roblanf/minion_qc
-
-MINIONQC=/home/pmeister/software/MinIONQC.R
-
-mkdir -p ${qcDir}/MinIONQC
-
-Rscript ${MINIONQC} -i ../sequencing_summary.txt -o $qcDir
-
-mv ../*.png ${qcDir}/MinIONQC/
+#
+## create qc output directory
+#qcDir=../fastqQC
+#mkdir -p $qcDir
+#
+#echo "doing MinIONQC..."
+## run Minion_qc
+## source: https://github.com/roblanf/minion_qc
+#
+#MINIONQC=/home/pmeister/software/MinIONQC.R
+#
+#mkdir -p ${qcDir}/MinIONQC
+#
+#Rscript ${MINIONQC} -i ../sequencing_summary.txt -o $qcDir
+#
+#mv ../*.png ${qcDir}/MinIONQC/
 
 
 ##########################################################
@@ -82,18 +83,21 @@ echo "collecting reads from folder of barcodes that were used..."
 mkdir -p ../fastqFiles
 for b in ${barcodesOfInterest[@]};
 do
+    echo $b
     if [ -d ../workspace/pass/${b} ];
     then
+    	echo "passed reads..."
         cat ../workspace/pass/${b}/*.fastq > ../fastqFiles/${expName}_pass_${b}.fastq
-	nanopolish index -d ../fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
+	nanopolish index -s ../sequencing_summary.txt -d ../fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
         gzip ../fastqFiles/${expName}_pass_${b}.fastq
         do_pauvre_nanoQC $b pass $expName $qcDir 
     fi
 
         if [ -d ../workspace/fail/${b} ];
     then
+    	echo "failed reads ..."
         cat ../workspace/fail/${b}/*.fastq > ../fastqFiles/${expName}_fail_${b}.fastq
-	nanopolish index -d fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
+	nanopolish index -s ../sequencing_summary.txt -d ../fast5files/*/fast5/ ../fastqFiles/${expName}_pass_${b}.fastq
         gzip ../fastqFiles/${expName}_fail_${b}.fastq
         do_pauvre_nanoQC $b fail $expName $qcDir
     fi
@@ -103,11 +107,20 @@ done
 ################################################
 # aligning to genome
 ################################################
+echo "aligning to genome..."
 
 mkdir -p ../bamFiles
+echo $bcOfInterest
+echo $genomeFile
 
 # map reads to genome with minimap2
-minimap2 -a -x map-ont $genomeFile ../fastqFiles/${expName}_pass_${bcOfInterest}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bcOfInterest}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam 
 
-samtools index ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam
+echo "index bam file ..."
+#samtools index ../bamFiles/${expName}_pass_${bcOfInterest}.sorted.bam
 
+
+################################################
+# identifying CmG and GCm
+################################################
+echo "identify GCm and CmG ..."

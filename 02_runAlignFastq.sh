@@ -18,4 +18,4 @@ mkdir -p ../fastqFiles
 let i=$SLURM_ARRAY_TASK_ID-1
 
 # organise fastq, do QC plots and align with minimap
-./alignFastq.sh $expName ${barcodesOfInterest[$i]}
+./alignFastq.sh $expName ${barcodesOfInterest[$i]} $genomeFile
