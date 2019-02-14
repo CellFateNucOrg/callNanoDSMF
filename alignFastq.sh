@@ -13,10 +13,12 @@ bcOfInterest=$2
 #bcOfInterest=${barcodesOfInterest[0]}
 
 ####### modules to load ##########
+module load vital-it
+module load R/3.5.1
 module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
-module add UHTS/Nanopore/naligning to genome
-################################################nopolish/0.10.2;
+module add UHTS/Nanopore/nanopolish/0.10.2;
+############################################
 
 ##################
 # run MinIONQC
@@ -29,8 +31,6 @@ mkdir -p $qcDir
 echo "doing MinIONQC..."
 # run Minion_qc
 # source: https://github.com/roblanf/minion_qc
-module load vital-it
-module load R/3.5.1
 
 MINIONQC=/home/pmeister/software/MinIONQC.R
 
