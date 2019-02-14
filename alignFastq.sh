@@ -77,9 +77,9 @@ do_pauvre_nanoQC() {
 ################################################
 echo "collecting reads from folder of barcodes that were used..."
 
-# scroll through all barcodes you have used and take properly classified reads and move them
-# to new folders
+# merge all reads from particular barcode into single file (pass fail separately)
 mkdir -p ../fastqFiles
+mkdir -p ../fastqQC
 
 # need absolut paths for nanopolish index. get it from the summary file.
 summaryFile=`readlink -f ../sequencing_summary.txt`
@@ -91,20 +91,20 @@ if [ -d ../workspace/pass/${bc} ];
 then
     echo "passed reads..."
     cat ../workspace/pass/${bc}/*.fastq > ../fastqFiles/${expName}_pass_${bc}.fastq
-    #nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_pass_${bc}.fastq
+    #nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq
     gzip ../fastqFiles/${expName}_pass_${bc}.fastq
-    nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_pass_${bc}.fastq.gz
+    nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz
     do_pauvre_nanoQC $bc pass $expName ../fastqQC 
 fi
 
     if [ -d ../workspace/fail/${bc} ];
 then
-	echo "failed reads ..."
+    echo "failed reads ..."
     cat ../workspace/fail/${bc}/*.fastq > ../fastqFiles/${expName}_fail_${bc}.fastq
-    #nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_fail_${bc}.fastq
+    #nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq
     gzip ../fastqFiles/${expName}_fail_${bc}.fastq
-    nanopolish index -s ${summaryFile} -d ${expPath}fast5files/ ${expPath}fastqFiles/${expName}_fail_${bc}.fastq.gz
-    do_pauvre_nanoQC $b fail $expName ../fastqQC
+    nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc fail $expName ../fastqQC
 fi
 
 
@@ -124,11 +124,23 @@ samtools index ../bamFiles/${expName}_pass_${bc}.sorted.bam
 samtools index ../bamFiles/${expName}_fail_${bc}.sorted.bam
 
 ################################################
-# identifying CmG and GCm
+# identifying CmG
 ################################################
-echo "identify GCm and CmG ..."
+echo "identify CmG ..."
 
-mkdir -p ../methylation_calls
-nanopolish call-methylation -t 4 -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/${expName}_pass_${bc}.tsv
+mkdir -p ../methylation_calls/CpG
+nanopolish call-methylation -t 4 -q cpg -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/CpG/${expName}_pass_${bc}.tsv
 
-nanopolish call-methylation -t 4 -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/${expName}_fail_${bc}.tsv
+nanopolish call-methylation -t 4 -q cpg -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/CpG/${expName}_fail_${bc}.tsv
+
+
+
+################################################
+# identifying GCm
+################################################
+echo "identify GCm ..."
+
+mkdir -p ../methylation_calls/GpC
+nanopolish call-methylation -t 4 -q gpc -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/GpC/${expName}_pass_${bc}.tsv
+
+nanopolish call-methylation -t 4 -q gpc -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w "ttTi5605:1-2378" > ${expPath}/methylation_calls/GpC/${expName}_fail_${bc}.tsv
