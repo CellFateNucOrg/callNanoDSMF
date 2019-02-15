@@ -20,11 +20,13 @@ git clone https://github.com/CellFateNucOrg/nanoDSMF.git
 ```
 Your starting directory should now look something like this:
 
+```
 +---20171027_bTMP_meth/
 |   +---fast5files/
 |   |   +---20171027_1121_/
 |   |   +---20171027_1128_/
 |   +---nanoDSMF/
+```
 
 # Setup of variables
 
