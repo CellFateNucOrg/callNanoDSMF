@@ -59,15 +59,11 @@ Next the script aligns the reads to the genome and places the bam files (same na
 
 Finally, the CpG and GpC methlation is called with nanopolish. The resulting .tsv files will be placed in the ../methylation_calls directory. 
 
-To run this script you must first modify the wrapper to specify the task array number - there will be one task for each barcode. So if in your varSettings.sh file you specified 4 barcodes, then you should edit the SBATCH --array line in the wrapper script *02_runAlignFastq.sh* as follows:
+To wrapper script *02_runAlignFastq.sh* runs each barcode as a separate task, so to run it you must first source the variables in varSettings.sh, which will automatically count the number of barcodes you used in this experiment and store it in the $NUMC variable. Then run the script passing the --array parameter with this variable to the cluster:
 
 ```
-#SBATCH --array=1-4
-```
-
-Then run the wrapper script:
-```
-sbatch 02_runAlignFastq.sh
+source ./varSettings.sh
+sbatch --array=1-${NUMBC} 02_runAlignFastq.sh
 ```
 
 
