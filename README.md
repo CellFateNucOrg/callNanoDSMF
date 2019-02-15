@@ -1,14 +1,14 @@
 # nanoDSMF
 Analysing nanopore sequencing of dSMF data
 
-# Setup of environment
+## Setup of environment
 
 These scripts require:
 1) albacore_env python environment, as set up for the nanoHiC analysis. This includes a local installation of MinIONQC.
 2) nanopolish >= v0.11.0 must be installed locally (just follow instructions on github https://github.com/jts/nanopolish/blob/master/README.md)
 3) The full path of the nanopolish directory must be exported from the .bashrc file as NANOPORE_DIR
 
-# Setup of data
+## Setup of data
 
 Since Minion often produced multiple runs per experiment (every time you stop and start the run), it is important to organise the data properly:
 
@@ -28,7 +28,7 @@ Your starting directory should now look something like this:
 |   +---nanoDSMF/
 ```
 
-# Setup of variables
+## Setup of variables
 
 Go into the nanoDSMF data and copy the varSettings_example.sh to a new file without the word "example". Then edit this file to have the correct settings for your experiment.
 ```
@@ -43,7 +43,7 @@ You need to specify:
 - location of the reference genome file to which you want to align your sequences.
 - location of the MinIONQC program (already set for the bioinformatics cluster)
 
-# Basecalling and MinIONQC
+## Basecalling and MinIONQC
 The *basecallAlbacore.sh* script perfom basecalling with albacore and QC with MinIONQC. To run is use the wrapper script labelled 01:
 
 ```
@@ -52,8 +52,8 @@ sbatch 01_runBasecall.sh
 
 The basecalled reads will all be under the directory (relative to the inside of nanoDSMF dir), in ../workspace, separated by barcode. The MinionQC will be in ../fastqQC/MinIONQC
 
-# Merging fastq files, aligning to genome and calling cytosine methylation
-The *alignFastq.sh* script merges all files from a single barcode (separately for pass and fail) into a single file called with the following template: experimentName_passORfail_barcode.fastq.gz. These files are placed in the ../fastqFiles directory.
+## Aligning to genome and calling cytosine methylation
+The *alignFastq.sh* script merges all files from a single barcode (separately for pass and fail) into a single file named according to the following template: experimentName_passORfail_barcode.fastq.gz. These files are placed in the ../fastqFiles directory.
 
 Next the script aligns the reads to the genome and places the bam files (same naming scheme) in the ../bamFiles directory.
 
