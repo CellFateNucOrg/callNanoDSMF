@@ -46,6 +46,7 @@ The *basecallAlbacore.sh* script perfom basecalling with albacore and QC with Mi
 
 ```
 sbatch 01_runBasecall.sh
+```
 
 The basecalled reads will all be under the directory (relative to the inside of nanoDSMF dir), in ../workspace, separated by barcode. The MinionQC will be in ../fastqQC/MinIONQC
 
