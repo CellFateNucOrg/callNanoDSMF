@@ -95,7 +95,7 @@ module add UHTS/Analysis/samtools/1.8;
 #    do_pauvre_nanoQC $bc pass $expName ../fastqQC 
 #fi
 #
-#    if [ -d ../workspace/fail/${bc} ];
+#if [ -d ../workspace/fail/${bc} ];
 #then
 #    echo "failed reads ..."
 #    cat ../workspace/fail/${bc}/*.fastq > ../fastqFiles/${expName}_fail_${bc}.fastq
@@ -105,20 +105,21 @@ module add UHTS/Analysis/samtools/1.8;
 #fi
 #
 #
-#################################################
-## aligning to genome
-#################################################
-#echo "aligning to genome..."
-#
-#mkdir -p ../bamFiles
-#
-## map reads to genome with minimap2
-#minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bc}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bc}.sorted.bam 
-#minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_fail_${bc}.fastq.gz | samtools sort -T tmp -o ../bamFiles/${expName}_fail_${bc}.sorted.bam
-#
-#echo "index bam file ..."
-#samtools index ../bamFiles/${expName}_pass_${bc}.sorted.bam
-#samtools index ../bamFiles/${expName}_fail_${bc}.sorted.bam
+################################################
+# aligning to genome
+################################################
+echo "aligning to genome..."
+
+mkdir -p ../bamFiles
+
+# map reads to genome with minimap2
+# filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
+minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_fail_${bc}.sorted.bam
+
+echo "index bam file ..."
+samtools index ../bamFiles/${expName}_pass_${bc}.sorted.bam
+samtools index ../bamFiles/${expName}_fail_${bc}.sorted.bam
 
 ################################################
 # identifying CmG
