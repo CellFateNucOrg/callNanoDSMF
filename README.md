@@ -1,4 +1,4 @@
-# nanoDSMF
+# callNanoDSMF
 Analysing nanopore sequencing of dSMF data
 
 ## Setup of environment
@@ -16,7 +16,7 @@ Create a directory with the name of your experiment (e.g 20171027_bTMP_meth). In
 
 In the expriment directory clone the code from this repository:
 ```
-git clone https://github.com/CellFateNucOrg/nanoDSMF.git
+git clone https://github.com/CellFateNucOrg/callNanoDSMF.git
 ```
 Your starting directory should now look something like this:
 
@@ -25,14 +25,14 @@ Your starting directory should now look something like this:
 |   +---fast5files/
 |   |   +---20171027_1121_/
 |   |   +---20171027_1128_/
-|   +---nanoDSMF/
+|   +---callNanoDSMF/
 ```
 
 ## Setup of variables
 
 Go into the nanoDSMF data and copy the varSettings_example.sh to a new file without the word "example". Then edit this file to have the correct settings for your experiment.
 ```
-cd nanoDSMF
+cd callNanoDSMF
 cp varSettings_example.sh verSettings.sh
 nano varSettings.sh
 ```
