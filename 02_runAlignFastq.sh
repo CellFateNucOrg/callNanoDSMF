@@ -3,7 +3,7 @@
 ## Allocate resources
 #SBATCH --time=0-03:00:00
 #SBATCH --mem-per-cpu=8G
-##SBATCH --array=1-4
+#SBATCH --array=1-4
 
 ## job name
 #SBATCH --job-name="align"
