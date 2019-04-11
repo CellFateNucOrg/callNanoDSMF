@@ -33,7 +33,7 @@ Your starting directory should now look something like this:
 Go into the nanoDSMF data and copy the varSettings_example.sh to a new file without the word "example". Then edit this file to have the correct settings for your experiment.
 ```
 cd callNanoDSMF
-cp varSettings_example.sh verSettings.sh
+cp varSettings_example.sh varSettings.sh
 nano varSettings.sh
 ```
 
