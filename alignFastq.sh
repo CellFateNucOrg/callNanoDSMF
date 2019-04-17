@@ -8,7 +8,7 @@ bc=$2 		# barcode
 genomeFile=$3 	# full path to reference genome
 
 # need absolute paths for nanopolish index. get it from the summary file.
-summaryFile=`readlink -f ../sequencing_summary.txt`
+summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
 expPath=`dirname $summaryFile`
 
 
