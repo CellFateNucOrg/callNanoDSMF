@@ -7,9 +7,10 @@
 ## next the files are sorted by barcode and output to e.g ../bcFastq/pass/barcodeXX/firstfastq.fastq
 ## pycoQC is run and results are in ../qc/pycoQC/pycoQC.html
 
+source ./varSettings.sh
 fullPath=`readlink -f ../`
 
-#${GUPPYDIR}/guppy_basecaller --input_path ${fullPath}/fast5Files --save_path ${fullPath}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
+${GUPPYDIR}/guppy_basecaller --input_path ${fullPath}/fast5Files --save_path ${fullPath}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
 #--num_callers
 
 #basecall passed files
@@ -35,6 +36,8 @@ mkdir -p $qcDir/pycoQC
 
 #https://github.com/a-slide/pycoQC
 
-pycoQC -f ../fastqFiles/sequencing_summary.txt -b ../bcFastq/*/barcoding_summary.txt -o $qcDir/pycoQC/pycoQC.html --title "nanoDSMF1" --min_pass_qual 3
+pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --title "nanoDSMF "${expName}" passed reads" --min_pass_qual 3
+
+pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" 
 
 source deactivate
