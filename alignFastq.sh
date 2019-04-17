@@ -34,7 +34,7 @@ do_pauvre_nanoQC() {
    pf=$2 #pass or fail folder
    eN=$3 #expName
    qc=$4 #qcDir
-   fq=../fastqFiles/${eN}_${pf}_${bc}.fastq.gz #input file to qc
+   fq=../bcFastq/${eN}_${pf}_${bc}.fastq.gz #input file to qc
    
    # assemble names for some of the output files
    outDir=${qc}/${pf}_${bc}
@@ -57,31 +57,29 @@ do_pauvre_nanoQC() {
 echo "collecting reads from folder of barcodes that were used..."
 
 # merge all reads from particular barcode into single file (pass fail separately)
-mkdir -p ../fastqFiles
-mkdir -p ../fastqQC
 
 # need absolut paths for nanopolish index. get it from the summary file.
-summaryFile=`readlink -f ../sequencing_summary.txt`
-expPath=`dirname $summaryFile`
+summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
+expPath=`readlink -f ../`
 #expPath=/data/projects/p025/Jenny/20171027_Minion_TMP_Meth
 echo $expPath
 
-if [ -d ../workspace/pass/${bc} ];
+if [ -d ../bcFastq/pass/${bc} ];
 then
     echo "passed reads..."
-    cat ../workspace/pass/${bc}/*.fastq > ../fastqFiles/${expName}_pass_${bc}.fastq
-    gzip ../fastqFiles/${expName}_pass_${bc}.fastq
-    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz
-    do_pauvre_nanoQC $bc pass $expName ../fastqQC 
+    cat ../bcFastq/pass/${bc}/*.fastq > ../bcFastq/${expName}_pass_${bc}.fastq
+    gzip ../bcFastq/${expName}_pass_${bc}.fastq
+    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc pass $expName ../qc
 fi
 
-    if [ -d ../workspace/fail/${bc} ];
+    if [ -d ../bcFastq/fail/${bc} ];
 then
     echo "failed reads ..."
-    cat ../workspace/fail/${bc}/*.fastq > ../fastqFiles/${expName}_fail_${bc}.fastq
-    gzip ../fastqFiles/${expName}_fail_${bc}.fastq
-    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz
-    do_pauvre_nanoQC $bc fail $expName ../fastqQC
+    cat ../bcFastq/fail/${bc}/*.fastq > ../bcFastq/${expName}_fail_${bc}.fastq
+    gzip ../bcFastq/${expName}_fail_${bc}.fastq
+    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5files/ ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc fail $expName ../qc
 fi
 
 
@@ -94,8 +92,8 @@ mkdir -p ../bamFiles
 
 # map reads to genome with minimap2
 # filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bc}.sorted.bam 
-minimap2 -ax map-ont $genomeFile ../fastqFiles/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_fail_${bc}.sorted.bam
+minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFiles/${expName}_fail_${bc}.sorted.bam
 
 echo "index bam file ..."
 samtools index ../bamFiles/${expName}_pass_${bc}.sorted.bam
@@ -107,9 +105,9 @@ samtools index ../bamFiles/${expName}_fail_${bc}.sorted.bam
 echo "identify CmG ..."
 
 mkdir -p ../meth_calls/
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_CpGcalls.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_CpGcalls.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_CpGcalls.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_CpGcalls.tsv
 
 #### caclulating frequency ######
 mkdir -p ../meth_freq
@@ -125,9 +123,9 @@ ${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${expPath}/meth_
 echo "identify GCm ..."
 
 mkdir -p ../meth_calls/
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/fastqFiles/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/fastqFiles/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_GpCcalls.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_GpCcalls.tsv
 
 #### caclulating frequency ######
 mkdir -p ../meth_freq

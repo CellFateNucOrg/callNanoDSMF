@@ -12,8 +12,6 @@
 source ./varSettings.sh
 
 # make destination directories
-mkdir -p ../fastqQC
-mkdir -p ../fastqFiles
 
 let i=$SLURM_ARRAY_TASK_ID-1
 
