@@ -38,6 +38,6 @@ mkdir -p $qcDir/pycoQC
 
 pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --title "nanoDSMF "${expName}" passed reads" --min_pass_qual 3
 
-pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" 
+pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" --min_pass_qual 3 
 
 source deactivate
