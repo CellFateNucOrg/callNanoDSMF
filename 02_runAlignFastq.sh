@@ -1,9 +1,9 @@
 #! /bin/bash
 
 ## Allocate resources
-#SBATCH --time=0-05:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --mem-per-cpu=8G
-#SBATCH --array=5
+#SBATCH --array=1-6
 ## you should submit as many jobs as there are barcodes in barcodesOfInterest
 ## (don't forget to include unclassfied in barcodesOfInterst in the varSettings.sh file)
 
@@ -22,7 +22,7 @@ let i=$SLURM_ARRAY_TASK_ID-1
 
 
 # if barcode is one with a spikein, align also to other genomes
-for bc in ${bcWithSpikeIn}
+for bc in ${bcWithSpikeIn[@]}
 do
     if [ "${barcodesOfInterest[$i]}" == "$bc" ]; then
         ./alignFastq_spikeIn.sh $expName ${barcodesOfInterest[$i]} ${lambdaFile}

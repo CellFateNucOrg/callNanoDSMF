@@ -48,49 +48,51 @@ do_pauvre_nanoQC() {
 }
 
 
-#################################################
-## Collecting reads from barcodes that were used
-#################################################
-#echo "collecting reads from folder of barcodes that were used..."
-#
-## merge all reads from particular barcode into single file (pass fail separately)
-#echo ${expPath}/fast5Files
-#
-#if [ -d ${expPath}/bcFastq/pass/${bc} ];
-#then
-#    echo "passed reads..."
-#    cat ${expPath}/bcFastq/pass/${bc}/*.fastq > ${expPath}/bcFastq/${expName}_pass_${bc}.fastq
-#    gzip ${expPath}/bcFastq/${expName}_pass_${bc}.fastq
-#    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5Files ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz
-#    do_pauvre_nanoQC $bc pass $expName ${expPath}/qc
-#fi
-#
-#    if [ -d ${expPath}/bcFastq/fail/${bc} ];
-#then
-#    echo "failed reads ..."
-#    cat ${expPath}/bcFastq/fail/${bc}/*.fastq > ${expPath}/bcFastq/${expName}_fail_${bc}.fastq
-#    gzip ${expPath}/bcFastq/${expName}_fail_${bc}.fastq
-#    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5Files ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz
-#    do_pauvre_nanoQC $bc fail $expName ${expPath}/qc
-#fi
-#
-#
-#################################################
-## aligning to genome
-#################################################${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
-#
-#echo "aligning to genome..."
-#
-#mkdir -p ${expPath}/bamFiles
-#
-## map reads to genome with minimap2
-## filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-#minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
-#minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
-#
-#echo "index bam file ..."
-#samtools index ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam
-#samtools index ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
+################################################
+# Collecting reads from barcodes that were used
+################################################
+echo "collecting reads from folder of barcodes that were used..."
+
+# merge all reads from particular barcode into single file (pass fail separately)
+echo ${expPath}/fast5Files
+
+if [ -d ${expPath}/bcFastq/pass/${bc} ];
+then
+    echo "passed reads..."
+    cat ${expPath}/bcFastq/pass/${bc}/*.fastq > ${expPath}/bcFastq/${expName}_pass_${bc}.fastq
+    gzip ${expPath}/bcFastq/${expName}_pass_${bc}.fastq
+    rm ${expPath}/bcFastq/${expName}_pass_${bc}.fastq
+    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5Files ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc pass $expName ${expPath}/qc
+fi
+
+    if [ -d ${expPath}/bcFastq/fail/${bc} ];
+then
+    echo "failed reads ..."
+    cat ${expPath}/bcFastq/fail/${bc}/*.fastq > ${expPath}/bcFastq/${expName}_fail_${bc}.fastq
+    gzip ${expPath}/bcFastq/${expName}_fail_${bc}.fastq
+    rm ${expPath}/bcFastq/${expName}_fail_${bc}.fastq
+    ${NANOPOLISH_DIR}/nanopolish index -s ${summaryFile} -d ${expPath}/fast5Files ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz
+    do_pauvre_nanoQC $bc fail $expName ${expPath}/qc
+fi
+
+
+################################################
+# aligning to genome
+################################################${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
+
+echo "aligning to genome..."
+
+mkdir -p ${expPath}/bamFiles
+
+# map reads to genome with minimap2
+# filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
+
+echo "index bam file ..."
+samtools index ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam
+samtools index ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
 
 
 ################################################
