@@ -28,7 +28,7 @@ module add UHTS/Analysis/samtools/1.8;
 ## activate python environment for QC programmes (Pauvre and NanoQC)
 source activate albacore_env
 
- #th}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv#function for running Pauvre and NanoQC on each combined file
+## function for running Pauvre and NanoQC on each combined file
 do_pauvre_nanoQC() {
    # get variables from arguments
    bc=$1 #barcode
@@ -79,7 +79,7 @@ fi
 
 ################################################
 # aligning to genome
-################################################${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
+################################################
 
 echo "aligning to genome..."
 
@@ -87,8 +87,8 @@ mkdir -p ${expPath}/bamFiles
 
 # map reads to genome with minimap2
 # filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
-minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T pass_${bc}  -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T fail_${bc} -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
 
 echo "index bam file ..."
 samtools index ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam
@@ -116,9 +116,9 @@ mkdir -p ${expPath}/meth_calls/
 
 for i in "${!chr[@]}"
 do
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
+	${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
+	${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
 done
 
 
@@ -155,9 +155,9 @@ for i in "${!chr[@]}"
 do
 echo ${chr[$i]}
 echo ${chrIntervals[$i]}
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w ${chrIntervals[$i]} > ${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
+	${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile -w ${chrIntervals[$i]} > ${expPath}/meth_calls/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w ${chrIntervals[$i]} > ${expPath}/meth_calls/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
+	${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile -w ${chrIntervals[$i]} > ${expPath}/meth_calls/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
 done
 
 
