@@ -9,7 +9,7 @@ genomeFile=$3 	# full path to reference genome
 
 # need absolute paths for nanopolish index. get it from the summary file.
 #summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
-expPath=`readlink -f ../`
+expPath=`readlink -f ${relPath}`
 #expPath=/data/projects/p025/Jenny/20190411_dSMFv021-025np_N2gw
 summaryFile=${expPath}/fastqFiles/sequencing_summary.txt
 

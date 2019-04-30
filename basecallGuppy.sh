@@ -8,36 +8,42 @@
 ## pycoQC is run and results are in ../qc/pycoQC/pycoQC.html
 
 source ./varSettings.sh
-fullPath=`readlink -f ../`
-
-${GUPPYDIR}/guppy_basecaller --input_path ${fullPath}/fast5Files --save_path ${fullPath}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
-#--num_callers
-
-#basecall passed files
-mkdir -p ../bcFastq/pass
-${GUPPYDIR}/guppy_barcoder -i ${fullPath}/fastqFiles/pass -s ${fullPath}/bcFastq/pass --barcode_kits EXP-NBD104 --worker_threads 8 --recursive -q 200000
-
-#basecall failed files
-mkdir -p ../bcFastq/fail
-${GUPPYDIR}/guppy_barcoder -i ${fullPath}/fastqFiles/fail -s ${fullPath}/bcFastq/fail --barcode_kits EXP-NBD104 --worker_threads 8 --recursive -q 200000
-
-#rm ../fastqFiles
-
+fullPath=`readlink -f ${relPath}`
+fast5path=$fullPath   #`readlink -f ../`
 
 ##################
-# run pycoQC
+# call barcodes
 #################
 
-source activate pycoQC
+mkdir -p ${fast5path}/bcFast5
+deepbinner classify --native ${fast5path}/fast5Files > classifications 
+#deepbinner realtime --in_dir ${fast5path}/fast5Files --out_dir ${fast5path}/bcFast5 --native
 
-# create qc output directory
-qcDir=../qc
-mkdir -p $qcDir/pycoQC
 
-#https://github.com/a-slide/pycoQC
-
-pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --title "nanoDSMF "${expName}" passed reads" --min_pass_qual 3
-
-pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" --min_pass_qual 3 
-
-source deactivate
+###################
+## basecall
+##################
+#
+#
+#${GUPPYDIR}/guppy_basecaller --input_path ${fast5path}/bcFast5 --save_path ${fullPath}/bcFastq --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
+##--num_callers
+#
+#
+#
+###################
+## run pycoQC
+##################
+#
+#source activate pycoQC
+#
+## create qc output directory
+#qcDir=${fullPath}/qc
+#mkdir -p $qcDir/pycoQC
+#
+##https://github.com/a-slide/pycoQC
+#
+#pycoQC -f ${fullPath}/bcFastq/sequencing_summary.txt -b ${fullPath}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --title "nanoDSMF "${expName}" passed reads" --min_pass_qual 3
+#
+#pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" --min_pass_qual 3 
+#
+#source deactivate
