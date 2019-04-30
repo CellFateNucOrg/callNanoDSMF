@@ -85,10 +85,10 @@ echo "aligning to genome..."
 
 mkdir -p ${expPath}/bamFiles
 
-# map reads to genome with minimap2
+ #map reads to genome with minimap2
 # filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T pass_${bc}  -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
-minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T fail_${bc} -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${expName}_pass_${bc}  -o ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam 
+minimap2 -ax map-ont $genomeFile ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${expName}_fail_${bc} -o ${expPath}/bamFiles/${expName}_fail_${bc}.sorted.bam
 
 echo "index bam file ..."
 samtools index ${expPath}/bamFiles/${expName}_pass_${bc}.sorted.bam
