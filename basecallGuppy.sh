@@ -9,7 +9,7 @@
 
 source ./varSettings.sh
 #fullPath=`readlink -f ${relPath}`
-fullPath=../
+fullPath=$PWD
 fast5path=$fullPath   #`readlink -f ../`
 
 ##################
@@ -34,7 +34,20 @@ fast5path=$fullPath   #`readlink -f ../`
 # bin by barcode
 ##################
 
-deepbinner bin --classes ${fast5path}/classifications --reads ${fast5path}/fastqFiles --out_dir ${fast5path}/bcFastq
+mkdir -p ${fullPath}/bcFastq/pass
+mkdir -p ${fullPath}/bcFastq/fail
+
+passfq=( `ls ${fullPath}/fastqFiles/pass/*` )
+for fq in ${passfq[@]}
+do
+deepbinner bin --classes ${fast5path}/classifications --recursive --reads ${fullPath}/fastqFiles/pass/${fq} --out_dir ${fullPath}/bcFastq/pass
+done
+
+failfq=( `ls ${fullPath}/fastqFiles/fail/*` )
+for fq in ${failfq[@]}
+do
+deepbinner bin --classes ${fast5path}/classifications --recursive --reads ${fullPath}/fastqFiles/fail/${fq} --out_dir ${fullPath}/bcFastq/fail
+done
 
 
 ###################
