@@ -40,13 +40,13 @@ mkdir -p ${fullPath}/bcFastq/fail
 passfq=( `ls ${fullPath}/fastqFiles/pass/*` )
 for fq in ${passfq[@]}
 do
-deepbinner bin --classes ${fast5path}/classifications --recursive --reads ${fullPath}/fastqFiles/pass/${fq} --out_dir ${fullPath}/bcFastq/pass
+deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/pass/${fq} --out_dir ${fullPath}/bcFastq/pass
 done
 
 failfq=( `ls ${fullPath}/fastqFiles/fail/*` )
 for fq in ${failfq[@]}
 do
-deepbinner bin --classes ${fast5path}/classifications --recursive --reads ${fullPath}/fastqFiles/fail/${fq} --out_dir ${fullPath}/bcFastq/fail
+deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/fail/${fq} --out_dir ${fullPath}/bcFastq/fail
 done
 
 
