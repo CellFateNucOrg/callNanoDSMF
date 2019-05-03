@@ -8,33 +8,40 @@
 ## pycoQC is run and results are in ../qc/pycoQC/pycoQC.html
 
 source ./varSettings.sh
-fullPath=`readlink -f ${relPath}`
+#fullPath=`readlink -f ${relPath}`
+fullPath=../
 fast5path=$fullPath   #`readlink -f ../`
 
 ##################
 # call barcodes
 #################
 
-mkdir -p ${fast5path}/bcFast5
-deepbinner classify --native ${fast5path}/fast5Files > classifications 
+#mkdir -p ${fast5path}/bcFast5
+#deepbinner classify --native ${fast5path}/fast5Files > classifications 
 #deepbinner realtime --in_dir ${fast5path}/fast5Files --out_dir ${fast5path}/bcFast5 --native
 
 
-###################
-## basecall
 ##################
-#
-#
-#${GUPPYDIR}/guppy_basecaller --input_path ${fast5path}/bcFast5 --save_path ${fullPath}/bcFastq --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
-##--num_callers
-#
-#
-#
+# basecall
+#################
+
+
+#${GUPPYDIR}/guppy_basecaller --input_path ${fast5path}/fast5Files --save_path ${fullPath}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
+#--num_callers
+
+
+##################
+# bin by barcode
+##################
+
+deepbinner bin --classes ${fast5path}/classifications --reads ${fast5path}/fastqFiles --out_dir ${fast5path}/bcFastq
+
+
 ###################
 ## run pycoQC
 ##################
 #
-#source activate pycoQC
+#conda activate pycoQC
 #
 ## create qc output directory
 #qcDir=${fullPath}/qc
@@ -46,4 +53,4 @@ deepbinner classify --native ${fast5path}/fast5Files > classifications
 #
 #pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" --min_pass_qual 3 
 #
-#source deactivate
+#conda deactivate
