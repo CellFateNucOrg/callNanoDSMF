@@ -37,17 +37,11 @@ fast5path=$fullPath   #`readlink -f ../`
 mkdir -p ${fullPath}/bcFastq/pass
 mkdir -p ${fullPath}/bcFastq/fail
 
-passfq=( `ls ${fullPath}/fastqFiles/pass/*` )
-for fq in ${passfq[@]}
-do
-deepbinner bin --classes ${fast5path}/classifications --reads ${fq} --out_dir ${fullPath}/bcFastq/pass
-done
+cat ${fullPath}/fastqFiles/pass/* > ${fullPath}/fastqFiles/pass/passed.fq
+deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/pass/passed.fq --out_dir ${fullPath}/bcFastq/pass
 
-failfq=( `ls ${fullPath}/fastqFiles/fail/*` )
-for fq in ${failfq[@]}
-do
-deepbinner bin --classes ${fast5path}/classifications --reads ${fq} --out_dir ${fullPath}/bcFastq/fail
-done
+cat ${fullPath}/fastqFiles/fail/* > ${fullPath}/fastqFiles/fail/failed.fq
+deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/fail/failed.fq --out_dir ${fullPath}/bcFastq/fail
 
 
 ###################
