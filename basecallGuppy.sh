@@ -34,30 +34,31 @@ fast5path=$fullPath   #`readlink -f ../`
 # bin by barcode
 ##################
 
-mkdir -p ${fullPath}/bcFastq/pass
-mkdir -p ${fullPath}/bcFastq/fail
+#mkdir -p ${fullPath}/bcFastq/pass
+#mkdir -p ${fullPath}/bcFastq/fail
 
-cat ${fullPath}/fastqFiles/pass/* > ${fullPath}/fastqFiles/pass/passed.fq
-deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/pass/passed.fq --out_dir ${fullPath}/bcFastq/pass
+#cat ${fullPath}/fastqFiles/pass/* > ${fullPath}/fastqFiles/pass/passed.fq
+#deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/pass/passed.fq --out_dir ${fullPath}/bcFastq/pass
 
-cat ${fullPath}/fastqFiles/fail/* > ${fullPath}/fastqFiles/fail/failed.fq
-deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/fail/failed.fq --out_dir ${fullPath}/bcFastq/fail
+#cat ${fullPath}/fastqFiles/fail/* > ${fullPath}/fastqFiles/fail/failed.fq
+#deepbinner bin --classes ${fast5path}/classifications --reads ${fullPath}/fastqFiles/fail/failed.fq --out_dir ${fullPath}/bcFastq/fail
 
+rm ${fullPath}/fastqFiles/pass/passed.fq
+rm ${fullPath}/fastqFiles/fail/failed.fq
 
-###################
-## run pycoQC
 ##################
-#
-#conda activate pycoQC
-#
-## create qc output directory
-#qcDir=${fullPath}/qc
-#mkdir -p $qcDir/pycoQC
-#
-##https://github.com/a-slide/pycoQC
-#
-#pycoQC -f ${fullPath}/bcFastq/sequencing_summary.txt -b ${fullPath}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --title "nanoDSMF "${expName}" passed reads" --min_pass_qual 3
-#
-#pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -b ${fullPath}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html --title "nanoDSMF "${expName}" failed reads" --min_pass_qual 3 
-#
-#conda deactivate
+# run pycoQC
+#################
+
+source activate pycoQC
+
+# create qc output directory
+qcDir=${fullPath}/qc
+mkdir -p $qcDir/pycoQC
+
+#https://github.com/a-slide/pycoQC
+
+pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}.html --min_pass_qual 3
+
+source deactivate
+
