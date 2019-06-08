@@ -7,15 +7,7 @@
 ## pycoQC is run and results are in ./qc/pycoQC/pycoQC.html
 
 source ./varSettings.sh
-#fullPath=`readlink -f ${relPath}`
-fullPath=$PWD
-
-##################
-# call barcodes
-#################
-
-mkdir -p ${fullPath}/bcFast5
-deepbinner classify --native ${fullPath}/fast5Files > classifications 
+#workDir=`readlink -f ${relPath}`
 
 
 ##################
@@ -23,38 +15,47 @@ deepbinner classify --native ${fullPath}/fast5Files > classifications
 #################
 
 
-${GUPPYDIR}/guppy_basecaller --input_path ${fullPath}/fast5Files --save_path ${fullPath}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --cpu_threads_per_caller 8 --qscore_filtering --min_qscore 3 
+guppy_basecaller --input_path ${dataDir}/fast5Files --save_path ${workDir}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --qscore_filtering --min_qscore 3  --device auto  
+
+
+##################
+# call barcodes
+#################
+
+deepbinner classify --native ${dataDir}/fast5Files > ${workDir}/classifications
 
 
 ##################
 # bin by barcode
 ##################
 
-mkdir -p ${fullPath}/bcFastq/pass
-mkdir -p ${fullPath}/bcFastq/fail
+mkdir -p ${workDir}/bcFastq/pass
+mkdir -p ${workDir}/bcFastq/fail
 
-cat ${fullPath}/fastqFiles/pass/* > ${fullPath}/fastqFiles/pass/passed.fq
-deepbinner bin --classes ${fullPath}/classifications --reads ${fullPath}/fastqFiles/pass/passed.fq --out_dir ${fullPath}/bcFastq/pass
+cat ${workDir}/fastqFiles/pass/* > ${workDir}/fastqFiles/pass/passed.fq
+deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/pass/passed.fq --out_dir ${workDir}/bcFastq/pass
 
-cat ${fullPath}/fastqFiles/fail/* > ${fullPath}/fastqFiles/fail/failed.fq
-deepbinner bin --classes ${fullPath}/classifications --reads ${fullPath}/fastqFiles/fail/failed.fq --out_dir ${fullPath}/bcFastq/fail
+cat ${workDir}/fastqFiles/fail/* > ${workDir}/fastqFiles/fail/failed.fq
+deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/fail/failed.fq --out_dir ${workDir}/bcFastq/fail
 
-rm ${fullPath}/fastqFiles/pass/passed.fq
-rm ${fullPath}/fastqFiles/fail/failed.fq
+rm ${workDir}/fastqFiles/pass/passed.fq
+rm ${workDir}/fastqFiles/fail/failed.fq
 
 ##################
 # run pycoQC
 #################
 
-source activate pycoQC
+source ${HOME}/.bashrc
+source ${CONDA_ACTIVATE}
+conda activate pycoQC
 
 # create qc output directory
-qcDir=${fullPath}/qc
-mkdir -p $qcDir/pycoQC
+qcDir=${workDir}/qc
+mkdir -p ${qcDir}/pycoQC
 
 #https://github.com/a-slide/pycoQC
 
-pycoQC -f ${fullPath}/fastqFiles/sequencing_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}.html --min_pass_qual 3
+pycoQC -f ${workDir}/fastqFiles/sequencing_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}.html --min_pass_qual 3
 
-source deactivate
+conda deactivate
 
