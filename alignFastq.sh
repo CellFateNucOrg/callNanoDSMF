@@ -2,15 +2,13 @@
 ## script to arrange all fastq files into batches for analysis. Combined files will be created for
 ## each barcode of interest for both passed and failed reads (e.g. pass_barcode01 or fail_barcode01).  
 
+source ./varSettings.sh
 # Get variables from command line
 expName=$1 	# experiment name (date of exp usually)
 bc=$2 		# barcode
 genomeFile=$3 	# full path to reference genome
 
 # need absolute paths for nanopolish index. get it from the summary file.
-#summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
-#workDir=`readlink -f ${relPath}`
-#workDir=/data/projects/p025/Jenny/20190411_dSMFv021-025np_N2gw
 summaryFile=${workDir}/fastqFiles/sequencing_summary.txt
 
 ####### modules to load ##########
@@ -20,21 +18,9 @@ module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
 ############################################
 
+source ${HOME}/.bashrc
+source ${CONDA_ACTIVATE} nanopore
 
-##########################################################
-# function to run Pauvre and nanoQC on individual batches
-##########################################################
-
-
-## function for running Pauvre and NanoQC on each combined file
-
-mkdir -p ${workDir}/qc/NanoStat
-NanoStat --summary ${workDir}/fastqFiles/sequencing_summary.txt --outdir ${workDir}/qc/NanoStat --barcoded --readtype 1D2 --threads 2
-
-mkdir -p ${workDir}/qc/pass_${bc}
-nanoQC $fq -o ${workDir}/qc/pass_${bc}
-mkdir -p ${workDir}/qc/fail_${bc}
-nanoQC $fq -o ${workDir}/qc/fail_${bc}
 
 ################################################
 # Collecting reads from barcodes that were used
@@ -43,8 +29,9 @@ echo "collecting reads from folder of barcodes that were used..."
 
 # merge all reads from particular barcode into single file (pass fail separately)
 echo ${dataDir}/fast5Files
+mkdir -p ${workDir}/qc/NanoStat
 
-if [ -d ${workDir}/bcFastq/pass/${bc} ];
+if [ -d "${workDir}/bcFastq/pass/${bc}" ];
 then
     echo "passed reads..."
     cat ${workDir}/bcFastq/pass/${bc}/*.fastq > ${workDir}/bcFastq/${expName}_pass_${bc}.fastq
@@ -52,10 +39,11 @@ then
     rm ${workDir}/bcFastq/${expName}_pass_${bc}.fastq
     nanopolish index -s ${summaryFile} -d ${dataDir}/fast5Files ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz
     mkdir -p ${workDir}/qc/pass_${bc}
-    nanoQC $fq -o ${workDir}/qc/pass_${bc}
+    nanoQC ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz -o ${workDir}/qc/pass_${bc}
+    NanoStat --fastq ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz  --outdir ${workDir}/qc/NanoStat --name NanoStat_${expName}_pass_${bc}.txt --readtype 1D 
 fi
 
-    if [ -d ${workDir}/bcFastq/fail/${bc} ];
+if [ -d "${workDir}/bcFastq/fail/${bc}" ];
 then
     echo "failed reads ..."
     cat ${workDir}/bcFastq/fail/${bc}/*.fastq > ${workDir}/bcFastq/${expName}_fail_${bc}.fastq
@@ -63,7 +51,8 @@ then
     rm ${workDir}/bcFastq/${expName}_fail_${bc}.fastq
     nanopolish index -s ${summaryFile} -d ${dataDir}/fast5Files ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz
     mkdir -p ${workDir}/qc/fail_${bc}
-    nanoQC $fq -o ${workDir}/qc/fail_${bc}
+    nanoQC ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz -o ${workDir}/qc/fail_${bc}
+    NanoStat --fastq ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz  --outdir ${workDir}/qc/NanoStat --name NanoStat_${expName}_fail_${bc}.txt --readtype 1D
 fi
 
 

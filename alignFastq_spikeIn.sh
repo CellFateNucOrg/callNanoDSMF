@@ -9,10 +9,6 @@ genomeFile=$3 	# full path to reference genome
 genomeName=`basename $genomeFile`
 genomeName=${genomeName%.fasta}
 
-# need absolute paths for nanopolish index. get it from the summary file.
-#summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
-#expPath=`dirname $summaryFile`
-expPath=`readlink -f ../`
 
 ####### modules to load ##########
 module load vital-it
@@ -63,32 +59,32 @@ echo "identify CmG ..."
 mkdir -p ../meth_calls/${genomeName}
 for i in "${!chr[@]}"
 do
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${workDir}/bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${workDir}/bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
 done
 
 
 #### combine separate chromosomes into single file ####
 
 # first write header
-head -1 ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[0]}.tsv > ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
-head -1 ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[0]}.tsv > ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
+head -1 ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[0]}.tsv > ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
+head -1 ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[0]}.tsv > ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
 
 # then combine files
 for i in "${!chr[@]}"
 do
-        tail -n +2 ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv >> ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
-        tail -n +2 ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv >> ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
-        rm ${expPath}/meth_calls/${genomeName}/${expName}_????_${bc}_CpGcalls_${chr[$i]}.tsv
+        tail -n +2 ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv >> ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
+        tail -n +2 ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv >> ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
+        rm ${workDir}/meth_calls/${genomeName}/${expName}_????_${bc}_CpGcalls_${chr[$i]}.tsv
 done
 
 
 #### caclulating frequency ######
 mkdir -p ../meth_freq/${genomeName}
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv > ${expPath}/meth_freq/${genomeName}/${expName}_pass_${bc}_freqCmG.tsv
+${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_pass_${bc}_freqCmG.tsv
 
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv > ${expPath}/meth_freq/${genomeName}/${expName}_fail_${bc}_freqCmG.tsv
+${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_fail_${bc}_freqCmG.tsv
 
 
 
@@ -100,30 +96,30 @@ echo "identify GCm ..."
 mkdir -p ../meth_calls/${genomeName}
 for i in "${!chr[@]}"
 do
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${expPath}/bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${workDir}/bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${expPath}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${expPath}/bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
+${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${workDir}/bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
 done
 
 
 #### combine separate chromosomes into single file ####
 
 # first write header
-head -1 ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[0]}.tsv > ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
-head -1 ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[0]}.tsv > ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv 
+head -1 ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[0]}.tsv > ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
+head -1 ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[0]}.tsv > ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv 
 
 # then combine files
 for i in "${!chr[@]}"
 do 
-    tail -n +2 ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv >> ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
-    tail -n +2 ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv >> ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv
-    rm ${expPath}/meth_calls/${genomeName}/${expName}_????_${bc}_GpCcalls_${chr[$i]}.tsv
+    tail -n +2 ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv >> ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
+    tail -n +2 ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv >> ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv
+    rm ${workDir}/meth_calls/${genomeName}/${expName}_????_${bc}_GpCcalls_${chr[$i]}.tsv
 done
 
 
 
 #### caclulating frequency ######
 mkdir -p ../meth_freq/${genomeName}
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${expPath}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv > ${expPath}/meth_freq/${genomeName}/${expName}_pass_${bc}_freqGCm.tsv
+${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_pass_${bc}_freqGCm.tsv
 
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${expPath}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${expPath}/meth_freq/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
+${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
