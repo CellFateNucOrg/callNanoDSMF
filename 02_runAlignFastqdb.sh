@@ -19,15 +19,15 @@ source ./varSettings.sh
 let i=$SLURM_ARRAY_TASK_ID-1
 
 # organise fastq, do QC plots and align with minimap
-./alignFastq.sh ${expName} ${barcodesOfInterest[$i]} ${genomeFile}
+./alignFastqdb.sh ${expName} ${barcodesOfInterest[$i]} ${genomeFile}
 
 
 # if barcode is one with a spikein, align also to other genomes
 for bc in ${bcWithSpikeIn[@]}
 do
     if [ "${barcodesOfInterest[$i]}" == "$bc" ]; then
-        ./alignFastq_spikeIn.sh ${expName} ${barcodesOfInterest[$i]} ${lambdaFile}
-        ./alignFastq_spikeIn.sh ${expName} ${barcodesOfInterest[$i]} ${phiXfile}
+        ./alignFastqdb_spikeIn.sh ${expName} ${barcodesOfInterest[$i]} ${lambdaFile}
+        ./alignFastqdb_spikeIn.sh ${expName} ${barcodesOfInterest[$i]} ${phiXfile}
     	exit
     fi
 done
