@@ -9,8 +9,6 @@ genomeFile=$3 	# full path to reference genome
 genomeName=`basename $genomeFile`
 genomeName=${genomeName%.fasta}
 
-# need absolute paths for nanopolish index. get it from the summary file.
-
 
 ####### modules to load ##########
 module load vital-it

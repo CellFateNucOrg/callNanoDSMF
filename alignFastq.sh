@@ -2,6 +2,7 @@
 ## script to arrange all fastq files into batches for analysis. Combined files will be created for
 ## each barcode of interest for both passed and failed reads (e.g. pass_barcode01 or fail_barcode01).  
 
+source ./varSettings.sh
 # Get variables from command line
 #expName=$1 	# experiment name (date of exp usually)
 #bc=$2 		# barcode
@@ -10,9 +11,6 @@
 source ./varSettings.sh
 
 # need absolute paths for nanopolish index. get it from the summary file.
-#summaryFile=`readlink -f ../fastqFiles/sequencing_summary.txt`
-#workDir=`readlink -f ${relPath}`
-#workDir=/data/projects/p025/Jenny/20190411_dSMFv021-025np_N2gw
 summaryFile=${workDir}/fastqFiles/sequencing_summary.txt
 
 ####### modules to load ##########
@@ -35,7 +33,7 @@ echo "collecting reads from folder of barcodes that were used..."
 echo ${dataDir}/fast5Files
 mkdir -p ${workDir}/qc/NanoStat
 
-if [ -d ${workDir}/bcFastq/pass/${bc} ];
+if [ -d "${workDir}/bcFastq/pass/${bc}" ];
 then
     echo "passed reads..."
     cat ${workDir}/bcFastq/pass/${bc}/*.fastq > ${workDir}/bcFastq/${expName}_pass_${bc}.fastq
@@ -44,10 +42,10 @@ then
     nanopolish index -s ${summaryFile} -d ${dataDir}/fast5Files ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz
     mkdir -p ${workDir}/qc/pass_${bc}
     nanoQC ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz -o ${workDir}/qc/pass_${bc}
-    NanoStat --fastq ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz  --outdir ${workDir}/qc/NanoStat --name NanoStat_${expName}_pass_${bc}.txt --readtype 1D
+    NanoStat --fastq ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz  --outdir ${workDir}/qc/NanoStat --name NanoStat_${expName}_pass_${bc}.txt --readtype 1D 
 fi
 
-    if [ -d ${workDir}/bcFastq/fail/${bc} ];
+if [ -d "${workDir}/bcFastq/fail/${bc}" ];
 then
     echo "failed reads ..."
     cat ${workDir}/bcFastq/fail/${bc}/*.fastq > ${workDir}/bcFastq/${expName}_fail_${bc}.fastq
