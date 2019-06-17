@@ -3,7 +3,9 @@
 ## Allocate resources
 #SBATCH --time=2-00:00:00
 #SBATCH --mem-per-cpu=8G
-#SBATCH --array=1-4,6
+#SBATCH --array=1-6
+#SBATCH --mail-user=jennifer.semple@izb.unibe.ch
+#SBATCH --mail-type=END,FAIL
 ## you should submit as many jobs as there are barcodes in barcodesOfInterest
 ## (don't forget to include unclassfied in barcodesOfInterst in the varSettings.sh file)
 

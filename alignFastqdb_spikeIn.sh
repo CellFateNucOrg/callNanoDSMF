@@ -20,22 +20,22 @@ module add UHTS/Analysis/samtools/1.8;
 
 
 
-################################################
-# aligning to genome
-################################################
-
-echo "aligning to genome..."
-
-mkdir -p ../bamFilesdb/${genomeName}
-
-# map reads to genome with minimap2
-# filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-minimap2 -ax map-ont $genomeFile ../dbbcFastq/pass/${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam 
-minimap2 -ax map-ont $genomeFile ../dbbcFastq/fail/${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam
-
-echo "index bam file ..."
-samtools index ../bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam
-samtools index ../bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam
+#################################################
+## aligning to genome
+#################################################
+#
+#echo "aligning to genome..."
+#
+#mkdir -p ../bamFilesdb/${genomeName}
+#
+## map reads to genome with minimap2
+## filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
+#minimap2 -ax map-ont $genomeFile ../dbbcFastq/pass/${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam 
+#minimap2 -ax map-ont $genomeFile ../dbbcFastq/fail/${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T tmp -o ../bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam
+#
+#echo "index bam file ..."
+#samtools index ../bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam
+#samtools index ../bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam
 
 
 ################################################
@@ -61,7 +61,7 @@ for i in "${!chr[@]}"
 do
 ${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/pass/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/fail/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
+#${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/fail/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv
 done
 
 
@@ -69,13 +69,13 @@ done
 
 # first write header
 head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
-head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
+#head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
 
 # then combine files
 for i in "${!chr[@]}"
 do
         tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv
-        tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
+ #       tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv
         rm ${workDir}/meth_callsdb/${genomeName}/${expName}_????_${bc}_CpGcalls_${chr[$i]}.tsv
 done
 
@@ -84,7 +84,7 @@ done
 mkdir -p ../meth_freq/${genomeName}
 ${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_CpGcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_pass_${bc}_freqCmG.tsv
 
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_fail_${bc}_freqCmG.tsv
+#${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_CpGcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_fail_${bc}_freqCmG.tsv
 
 
 
@@ -98,7 +98,7 @@ for i in "${!chr[@]}"
 do
 ${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/pass/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv
 
-${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/fail/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
+#${NANOPOLISH_DIR}/nanopolish call-methylation -t 4 -q gpc -w ${chrIntervals[$i]} -r ${workDir}/dbbcFastq/fail/${bc}.fastq.gz -b ${workDir}/bamFilesdb/${genomeName}/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv
 done
 
 
@@ -106,13 +106,13 @@ done
 
 # first write header
 head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
-head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv 
+#head -1 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[0]}.tsv > ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv 
 
 # then combine files
 for i in "${!chr[@]}"
 do 
     tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv
-    tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv
+ #   tail -n +2 ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls_${chr[$i]}.tsv >> ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv
     rm ${workDir}/meth_callsdb/${genomeName}/${expName}_????_${bc}_GpCcalls_${chr[$i]}.tsv
 done
 
@@ -122,5 +122,5 @@ done
 mkdir -p ../meth_freqdb/${genomeName}
 ${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_pass_${bc}_freqGCm.tsv
 
-${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
+#${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
 
