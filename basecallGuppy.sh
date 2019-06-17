@@ -17,26 +17,29 @@ source ./varSettings.sh
 #guppy_basecaller --input_path ${dataDir}/fast5Files --save_path ${workDir}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --qscore_filtering --min_qscore 3  --device auto  
 
 
-###################
-## call barcodes
 ##################
-#
-#deepbinner classify --native ${dataDir}/fast5Files > ${workDir}/classifications
-#
-#
-###################
-## bin by barcode
-###################
-#
-#mkdir -p ${workDir}/bcFastq/pass
-#mkdir -p ${workDir}/bcFastq/fail
-#
-#cat ${workDir}/fastqFiles/pass/* > ${workDir}/fastqFiles/pass/passed.fq
-#deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/pass/passed.fq --out_dir ${workDir}/bcFastq/pass
-#
-#cat ${workDir}/fastqFiles/fail/* > ${workDir}/fastqFiles/fail/failed.fq
-#deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/fail/failed.fq --out_dir ${workDir}/bcFastq/fail
-#
+# call barcodes
+#################
+
+deepbinner classify --native ${dataDir}/fast5Files > ${workDir}/classifications
+
+
+##################
+# bin by barcode
+##################
+
+mkdir -p ${workDir}/dbbcFastq/pass
+mkdir -p ${workDir}/dbbcFastq/fail
+
+cat ${workDir}/fastqFiles/pass/* > ${workDir}/fastqFiles/pass/passed.fq
+cat ${workDir}/fastqFiles/fail/* > ${workDir}/fastqFiles/fail/failed.fq
+
+deepbinner classify --native ${dataDir}/fast5Files > ${workDir}/classifications
+
+
+deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/pass/passed.fq --out_dir ${workDir}/dbbcFastq/pass
+deepbinner bin --classes ${workDir}/classifications --reads ${workDir}/fastqFiles/fail/failed.fq --out_dir ${workDir}/dbbcFastq/fail
+
 #rm ${workDir}/fastqFiles/pass/passed.fq
 #rm ${workDir}/fastqFiles/fail/failed.fq
 
@@ -46,12 +49,12 @@ source ./varSettings.sh
 ## call barcodes
 ##################
 
-mkdir -p ${workDir}/bcFastq/pass
-guppy_barcoder -i ${workDir}/fastqFiles/pass -s ${workDir}/bcFastq/pass --barcode_kits EXP-NBD104 --device auto  --recursive
+#mkdir -p ${workDir}/bcFastq/pass
+#guppy_barcoder -i ${workDir}/fastqFiles/pass -s ${workDir}/bcFastq/pass --barcode_kits EXP-NBD104 --device auto  --recursive
 
 
-mkdir -p ${workDir}/bcFastq/fail
-guppy_barcoder -i ${workDir}/fastqFiles/fail -s ${workDir}/bcFastq/fail --barcode_kits EXP-NBD104 --device auto  --recursive
+#mkdir -p ${workDir}/bcFastq/fail
+#guppy_barcoder -i ${workDir}/fastqFiles/fail -s ${workDir}/bcFastq/fail --barcode_kits EXP-NBD104 --device auto  --recursive
 
 ##################
 # run pycoQC
@@ -67,7 +70,14 @@ mkdir -p ${qcDir}/pycoQC
 
 #https://github.com/a-slide/pycoQC
 
-pycoQC -f ${workDir}/fastqFiles/sequencing_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}.html --min_pass_qual 3
+#pycoQC --summary_file ${workDir}/fastqFiles/sequencing_summary.txt --barcode_file ${workDir}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --min_pass_qual 3
+
+
+#pycoQC --summary_file ${workDir}/fastqFiles/sequencing_summary.txt --barcode_file ${workDir}/bcFastq/fail/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_fail.html
 
 #conda deactivate
 
+#pycoQC --summary_file ${workDir}/fastqFiles/sequencing_summary.txt --barcode_file ${workDir}/bcFastq/pass/barcoding_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}_pass.html --min_pass_qual 3
+
+
+pycoQC --summary_file ${workDir}/fastqFiles/sequencing_summary.txt -o ${qcDir}/pycoQC/pycoQC_${expName}.html
