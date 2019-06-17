@@ -18,6 +18,7 @@ module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
 ############################################
 
+
 source ${HOME}/.bashrc
 source ${CONDA_ACTIVATE} nanopore
 
@@ -73,6 +74,7 @@ source ${CONDA_ACTIVATE} nanopore
 #samtools index ${workDir}/bamFiles/${expName}_pass_${bc}.sorted.bam
 #samtools index ${workDir}/bamFiles/${expName}_fail_${bc}.sorted.bam
 #
+
 
 ################################################
 # getting chr intervals

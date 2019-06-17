@@ -20,6 +20,7 @@ module add UHTS/Analysis/samtools/1.8;
 
 
 
+
 #################################################
 ## aligning to genome
 #################################################
@@ -36,6 +37,7 @@ module add UHTS/Analysis/samtools/1.8;
 #echo "index bam file ..."
 #samtools index ../bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam
 #samtools index ../bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam
+
 
 
 ################################################
