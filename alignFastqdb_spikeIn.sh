@@ -17,6 +17,8 @@ module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
 ############################################
 
+for bc in "${barcodesOfInterest[@]}" 
+do
 
 
 
@@ -123,4 +125,6 @@ mkdir -p ../meth_freqdb/${genomeName}
 ${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_pass_${bc}_freqGCm.tsv
 
 #${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_callsdb/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${workDir}/meth_freqdb/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
+
+done
 

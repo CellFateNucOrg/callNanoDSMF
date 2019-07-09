@@ -99,7 +99,7 @@ mkdir -p ${workDir}/meth_calls/
 for i in "${!chr[@]}"
 do
 	nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_pass_${bc}.fastq.gz -b ${workDir}/bamFiles/${expName}_pass_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${expName}_pass_${bc}_CpGcalls_${chr[$i]}.tsv
-  if [ "$doFail" = "TRUE" ]
+  if [ "$doFail" = TRUE ]
   then
 	echo "analysing failed reads"
 	nanopolish call-methylation -t 4 -q cpg -w ${chrIntervals[$i]} -r ${workDir}/bcFastq/${expName}_fail_${bc}.fastq.gz -b ${workDir}/bamFiles/${expName}_fail_${bc}.sorted.bam -g $genomeFile > ${workDir}/meth_calls/${expName}_fail_${bc}_CpGcalls_${chr[$i]}.tsv

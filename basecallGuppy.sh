@@ -14,7 +14,7 @@ source ./varSettings.sh
 #################
 
 
-#guppy_basecaller --input_path ${dataDir}/fast5Files --save_path ${workDir}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --qscore_filtering --min_qscore 3  --device auto  
+guppy_basecaller --input_path ${dataDir}/fast5Files --save_path ${workDir}/fastqFiles --flowcell FLO-MIN106 --kit SQK-LSK109 --records_per_fastq 200000 --recursive  --qscore_filtering --min_qscore 3  --device auto --config ${guppyConfigFile} 
 
 
 ##################

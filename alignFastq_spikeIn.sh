@@ -17,24 +17,26 @@ module add UHTS/Analysis/minimap2/2.12;
 module add UHTS/Analysis/samtools/1.8;
 ############################################
 
+for bc in "${barcodesOfInterest[@]}" 
+do
 
 
-################################################
-# aligning to genome
-################################################
-
-echo "aligning to genome..."
-
-mkdir -p ../bamFiles/${genomeName}
-
-# map reads to genome with minimap2
-# filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
-minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${genomeName}_${expName}_pass_${bc} -o ../bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam 
-minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${genomeName}_${expName}_pass_${bc} -o ../bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam
-
-echo "index bam file ..."
-samtools index ../bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam
-samtools index ../bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam
+#################################################
+## aligning to genome
+#################################################
+#
+#echo "aligning to genome..."
+#
+#mkdir -p ../bamFiles/${genomeName}
+#
+## map reads to genome with minimap2
+## filter reads with flag=2308: unmapped (4) + secondary alignment (256) + supplementary alignment (2048) [the latter category is the main problem]
+#minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_pass_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${genomeName}_${expName}_pass_${bc} -o ../bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam 
+#minimap2 -ax map-ont $genomeFile ../bcFastq/${expName}_fail_${bc}.fastq.gz | samtools view -F 2308 -b | samtools sort -T ${genomeName}_${expName}_pass_${bc} -o ../bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam
+#
+#echo "index bam file ..."
+#samtools index ../bamFiles/${genomeName}/${expName}_pass_${bc}.sorted.bam
+#samtools index ../bamFiles/${genomeName}/${expName}_fail_${bc}.sorted.bam
 
 
 
@@ -123,3 +125,6 @@ mkdir -p ../meth_freq/${genomeName}
 ${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_pass_${bc}_GpCcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_pass_${bc}_freqGCm.tsv
 
 #${NANOPOLISH_DIR}/scripts/calculate_methylation_frequency.py -i ${workDir}/meth_calls/${genomeName}/${expName}_fail_${bc}_GpCcalls.tsv > ${workDir}/meth_freq/${genomeName}/${expName}_fail_${bc}_freqGCm.tsv
+
+done
+
