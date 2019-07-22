@@ -10,4 +10,4 @@
 #SBATCH --mem-per-cpu=8G
 
 
-./getBamCoverage.sh ../bamFilesdb/*.sorted.bam
+./getBamCoverage.sh 
